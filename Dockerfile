@@ -5,11 +5,13 @@ COPY . .
 
 RUN dotnet restore
 
-RUN dotnet publish -c Release -o /app
+RUN apt-get update && apt-get install -y libgdiplus libc6-dev
+
+RUN dotnet publish -c Release -o /app /p:TreatWarningsAsErrors=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
 COPY --from=build /app .
 
-ENTRYPOINT ["dotnet", "EKampus-RaporACore.dll"]
+ENTRYPOINT ["dotnet", "EkampusCore.WebSites.RaporAl.dll"]
