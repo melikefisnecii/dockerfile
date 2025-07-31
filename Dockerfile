@@ -1,17 +1,22 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-
-COPY . .
-
-RUN dotnet restore
-
-RUN apt-get update && apt-get install -y libgdiplus libc6-dev
-
-RUN dotnet publish -c Release -o /app /p:TreatWarningsAsErrors=false
-
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
 WORKDIR /app
+EXPOSE (hangi portlar üzerinden işlem alınacak)
 
-COPY --from=build /app .
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build 
+ARG BUILD_CONFIGURATION=Release(???) 
+WORKDIR /src
+COPY ['' EKAMPÜS PROJESİNİN csproj dosyası????] (kopyalanacak proje dosyası)
+RUN dotnet restore '' COPY SATIRINA EKLENEN KLASÖRÜN ADI '' 
+COPY . . 
+WORKDIR ''/src/''
+RUN dotnet build (csproj dosya adı) -c $BUILD_CONFIGURATION -o /app/build (hangi konfigürasyona build edecek) 
 
-ENTRYPOINT ["dotnet", "EkampusCore.WebSites.RaporAl.dll"]
+FROM build AS publish 
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish ''(csproj dosya adı) -c $BUILD_CONFIGURATION -O /app/publish /p:UseAppHost=false
+
+FROM base AS final 
+WORKDIR /app
+COPY --from=publish /app/publish . 
+ENTRYPOINT [''dotnet'', ''EKampus.RaporAl.Core.dll'']
+
