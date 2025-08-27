@@ -21,4 +21,5 @@ RUN dotnet publish "v2-yukle.al.csproj" -c $build_configuration -o /app/publish 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish . 
+USER agent 
 ENTRYPOINT ["dotnet", "v2-yukle.al.dll"]
