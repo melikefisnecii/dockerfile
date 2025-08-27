@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
+WORKDIR /app
+
+EXPOSE 44313
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG build_configuration=Release
+WORKDIR /src
+COPY ["v2-yukle.al/v2-yukle.al.csproj", "./"]
+RUN dotnet restore "v2-yukle.al.csproj"
+COPY . . 
+
+WORKDIR "/src/"
+RUN dotnet build "v2-yukle.al.csproj" -c $build_configuration -o /app/build
+
+FROM build AS publish
+ARG build_configuration=Release
+RUN dotnet publish "v2-yukle.al.csproj" -c $build_configuration -o /app/publish /p:UseAppHost:False
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish . 
+ENTRYPOINT ["dotnet", "v2-yukle.al.dll"]
